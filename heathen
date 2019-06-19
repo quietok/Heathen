@@ -1,0 +1,199 @@
+#!/usr/local/bin/python3.6
+import os
+import random
+import argparse
+import heathen
+import configparser
+import pydoc
+
+def list_select(modules,configz):
+    modlen = len(modules)
+    modrange = range(0,modlen)
+    selected = False
+    for item in modrange:
+        if 'about' in modules[item][1]:
+            about = modules[item][1]['about']
+        else:
+            about = "None available"
+        print(str(item+1)+": "+module[item][0]+"\n"+about)
+    while not selected:
+        pack = input("Package: ")
+        if int(pack) in modrange:
+            selected = True
+            return module[int(pack)-1][0]
+        else:
+            print("Incorrect selection")
+
+
+
+heathenconfig = os.path.join(os.path.dirname(os.path.realpath(__file__)),'.heathen')
+if __name__ == '__main__':
+    the_heathen = heathen.Heathen(conf = heathenconfig, handler = input, display = print)
+
+    parser = argparse.ArgumentParser(description='Grab bible verses!')
+
+    verse_help = "Display verse: book chapter:verse(s)\n {} --verse john@3:16-+\n+ is basically * function.".format(parser.prog)
+    reader_help = "Display chapter or verses in editor:\nbook chapter:verse(s)(-chapter):verse(s)\n {} --reader john@3:1-+".format(parser.prog)
+
+    parser.add_argument("--verse", "-v", help=verse_help, nargs='?', default=None)
+    parser.add_argument("--reader", "-r", help=reader_help, nargs='?', default=None)
+    parser.add_argument("--version", "-b", help='Bible version', nargs=1, default=[the_heathen.heathenconf['MAIN']['version'].strip().rstrip().lower()], metavar=("version"))
+    parser.add_argument("--take_notes", "-t", help='Record note for verses', action='store_true')
+    parser.add_argument("--notes", "-n", help='View verse notes', action='store_true')
+    parser.add_argument("--list", "-l", help='List books in module', nargs='?', default=None)
+
+    parser.add_argument('--add_module', '-a', nargs=1, default=None, metavar=("module"))
+    parser.add_argument('--search_modules', '-s', nargs='?', help="Specify section with -k default is about", default=None, metavar=("string-regex"))
+    parser.add_argument('--section', '-k', nargs='?', help="Section to search", default="about", metavar=("sectionname"))
+    parser.add_argument('--uninstall_module', '-u', nargs=1, default=None, metavar=("module"))
+    parser.add_argument("--list_installed", "-i", help="list installed repos", action='store_true')
+    parser.add_argument('--upgrade_modules', '-g', help="Upgrade all installed modules" ,action='store_true')
+    parser.add_argument('--sync_repos', '-y', help="Update repositories", action='store_true')
+    parser.add_argument("--prefer_zip","-z", help="Prefer zip packages.", action='store_true')
+    parser.add_argument("--beta","-beta", help="Access beta.", action='store_true')
+
+
+    args = parser.parse_args()
+
+    the_heathen.version = (args.version[0]).strip().rstrip().lower()
+    check = the_heathen.version.split('-')
+    if len(check) > 1:
+        the_heathen.version = check[1]
+
+    if args.add_module != None:
+        isitinstalled = the_heathen.pyrepoz.find_module(args.add_module[0], installed=True)
+        if len(isitinstalled) == 0:
+            modules = the_heathen.pyrepoz.find_module(args.add_module[0])
+            modlen = len(modules)
+            if modlen == 1:
+                the_heathen.pyrepoz.install_module(modules[0][0], beta=args.beta, preferzip=args.prefer_zip)
+            elif modlen != 0:
+                the_heathen.pyrepoz.install_module( list_select(modules,the_heathen.pyrepoz.pyrepo_list), beta=args.beta, preferzip=args.prefer_zip)
+        else:
+            print("module is installed.")
+
+    if args.search_modules != None:
+        string=""
+        found = the_heathen.pyrepoz.search_section_module(args.search_modules,args.section)
+        for item in range(0,len(found)):
+            string+="\n{}:{}\n\n{}\n".format(item+1, found[item][0], found[item][1][args.section].replace("\par","").replace("colon",":").replace("percent","%"))
+        pydoc.pager(string)
+
+    elif args.uninstall_module != None:
+        modules = the_heathen.pyrepoz.find_module(args.uninstall_module[0], installed=True)
+        if len(modules) != 0:
+            modlen = len(modules)
+            if modlen == 1:
+                the_heathen.pyrepoz.uninstall_module(modules[0][0])
+            elif modlen != 0:
+                the_heathen.pyrepoz.uninstall_module(list_select(modules,the_heathen.pyrepoz.pyrepo_list+".installed"))
+        else:
+            print("module isnt installed")
+    elif args.list_installed:
+        reeps = the_heathen.pyrepoz.list_installed_modules()
+        for item in range(0, len(reeps)):
+            print(str(item+1)+": "+reeps[item])
+
+    elif args.upgrade_modules:
+        if args.sync_repos:
+            the_heathen.pyrepoz.update_repo_list()
+            the_heathen.pyrepoz.download_repos()
+        upgradable = the_heathen.pyrepoz.update_modules_list(uptobeta=args.beta)
+        if len(upgradable) != 0:
+            success=False
+            modrange = range(0,len(upgradable))
+            printstring = ""
+            for item in modrange:
+                printstring+=str(item+1)+": "+upgradable[item]+"\n"
+            print(printstring)
+            answer = input("upgrade them all?(y/n):")
+            if 'y' in answer:
+                for module in upgradable:
+                    the_heathen.pyrepoz.uninstall_module(module)
+                    the_heathen.pyrepoz.install_module(module, beta=args.beta, preferzip=args.preferzip)
+            elif 'n' in answer:
+                while not success:
+                    print(printstring)
+                    items = (input("Enter what you would like to upgrade(numbers) seperated by spaces: ")).strip().rstrip().split(" ")
+                    items.remove("")
+                    success = True
+                    for item in items:
+                        if int(item) not in modrange:
+                            success = False
+                for item in items:
+                    the_heathen.pyrepoz.uninstall_module(upgradable[item])
+                    the_heathen.pyrepoz.install(upgradable[item], beta=args.beta, preferzip=args.preferzip)
+            else:
+                print("Incorrect input.")
+
+    elif args.sync_repos:
+        the_heathen.pyrepoz.update_repo_list()
+        the_heathen.pyrepoz.download_repos()
+
+    elif args.reader != None:
+        the_heathen.grab_and_open()
+
+        argx = args.reader.split('@')
+        results = the_heathen.compile_verse_text(argx[0], argx[1], versenotes=args.notes)
+        if not os.path.exists(the_heathen.tempfiles):
+            os.makedirs(the_heathen.tempfiles)
+        date_time = the_heathen.now.strftime("%d-%m-%Y,%H-%M-%S")
+        thetempfile = os.path.join(the_heathen.tempfiles,date_time+".readings")
+
+        with open(thetempfile, 'w') as temps:
+            temps.write(results[-1])
+        temps.close()
+        results.pop(-1)
+        input("To take notes, just enter them on the line underneath the verse..press enter to continue")
+        os.system('%s %s' % (os.environ['EDITOR'], thetempfile))
+        with open(thetempfile, 'r') as temps:
+            compare = temps.readlines()
+        os.remove(thetempfile)
+        the_heathen.add_to_notes(the_heathen.compare_verse_lines(compare,results,oldnotes=args.notes))
+        print("Good bye!")
+
+
+
+    elif args.verse != None:
+        the_heathen.grab_module()
+        the_heathen.open_bible()
+        argx = args.verse.split('@')
+        result = the_heathen.compile_verse_text(argx[0], argx[1], versenumbers=True, versenotes=args.notes)
+        print(result[-1])
+        config = configparser.ConfigParser()
+        if args.take_notes:
+            now = datetime.now()
+            date_time = now.strftime("%d-%m-%Y,%H-%M-%S")
+            bookver_chapter_verse = the_heathen.version.lower()+"-"+result[-2]['book']+"-"+str(result[-2]['chapter'])+"_"+str(result[-2]['verses'][0])
+            note = input("note: ")
+            the_heathen.add_to_notes(zip([bookver_chapter_verse],[date_time],[note]))
+
+    elif args.list != None:
+        the_heathen.grab_module()
+        the_heathen.open_bible()
+        books  = the_heathen.bible.get_structure().get_books()
+        booklist = args.list.split(',')
+        string = ""
+        lastcount = 0
+        for book in booklist:
+            book = book.strip().rstrip().lower()
+            if book == 'old testament':
+                book = 'ot'
+            if book == 'new testament':
+                book = 'nt'
+            for item in range(0,len(books[book])):
+                string+="\n{}: {}".format(item+1+lastcount, books[book][item].name)
+                count=item
+            lastcount = count
+        pydoc.pager(string)
+
+
+    else:
+        print("""    _     _ _______ _______ _______ _     _ _______ __   _
+    |_____| |______ |_____|    |    |_____| |______ | \  |
+    |     | |______ |     |    |    |     | |______ |  \_|
+    [                   Read Your Bible                  ]  \n\n""")
+        parser.print_help()
+
+
+
