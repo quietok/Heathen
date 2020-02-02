@@ -1,0 +1,27 @@
+[drc.conf-drc]
+name = [drc]
+full_path = /usr/home/mouse/projects/Heathen/.bibles/mods.d/drc.conf
+datapath = ./modules/texts/ztext/drc/
+lang = en
+description = douay-rheims bible, challoner revision
+about = the holy bible\par translated from the latin vulgate\par diligently compared with the hebrew, greek, and other editions in divers languages\par the old testament\par first published by the english college at douay, a.d. 1609\par and\par the new testament\par first published by the english college at rheims, a.d. 1582\par with annotations, references, and an historical and chronological index\par\par the whole revised and diligently compared with the latin vulgate by bishop richard challoner, a.d.\par 1749-1752\par published with the approbation of\par his eminence james cardinal gibbons\par archbishop of baltimore
+textsource = httpcolon//www.sacredbible.org/
+versification = vulg
+lcsh = bible. english.
+distributionlicense = public domain
+obsoletes = dr
+blocktype = book
+compresstype = zip
+moddrv = ztext
+swordversiondate = 2009-10-24
+version = 2.0
+history_2.0 = added deuterocanonicals, used improved text source
+history_1.1 = compressed module
+minimumversion = 1.6.1
+installsize = 1969514
+beta available = no
+server url = ftp.crosswire.org
+server path = /pub/sword/raw
+server proto = ftp://
+installed files = ## /usr/home/mouse/projects/Heathen/.bibles/./modules/texts/ztext/drc/DRC.zip
+
