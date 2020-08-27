@@ -216,7 +216,7 @@ class Heathen():
             config.write(conf)
 
     def compare_verse_lines(self, compare,results,linenumbers=True,oldnotes=False):
-        print(results)
+        #print(results)
         try:
             compare.remove("")
         except: pass
