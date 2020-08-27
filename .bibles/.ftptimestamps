@@ -1,0 +1,21 @@
+[ftp.crosswire.org]
+/pub/sword/raw/mods.d.tar.gz = 20200827073605
+/pub/sword/betaraw/mods.d.tar.gz = 20200827073606
+/pub/sword/atticraw/mods.d.tar.gz = 20200626172230
+/pub/sword/wyclifferaw/mods.d.tar.gz = 20200528104918
+/pub/sword/dbgraw/mods.d.tar.gz = 20200807172202
+/pub/sword/lockmanraw/mods.d.tar.gz = 20200312030350
+pub/sword/masterrepolist.conf = 20190609041917
+
+[ftp.bible.org]
+/sword/mods.d.tar.gz = 20080215232151
+
+[ftp.xiphos.org]
+./mods.d.tar.gz = 20200720124848
+
+[ftp.ibt.org.ru]
+/pub/modsword/raw/mods.d.tar.gz = 20200826232036
+
+[ftp.ebible.org]
+/sword/mods.d.tar.gz = 20200827014949
+

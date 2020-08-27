@@ -48,3 +48,5 @@ flycheck_*.el
 /network-security.data
 __pycache__/
 .heathen
+.bible
+

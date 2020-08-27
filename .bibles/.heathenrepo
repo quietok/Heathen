@@ -1,0 +1,15 @@
+[MAIN]
+master repo list = masterRepoList.conf
+master repo list localpath = /usr/home/mouse/heathen/.bibles/masterRepoList.conf
+pymaster repo list = /usr/home/mouse/heathen/.bibles/.pymasterRepoList.conf
+python repo list = /usr/home/mouse/heathen/.bibles/mods.d/.python_helpful_confs
+python repo outdated list = /usr/home/mouse/heathen/.bibles/mods.d/.python_helpful_confs.outdated
+master server = ftp.crosswire.org
+master server repo path = pub/sword
+sword home = /usr/home/mouse/heathen/.bibles
+repo directory = mods.d
+repo path = /usr/home/mouse/heathen/.bibles/mods.d
+repo tar.gz = mods.d.tar.gz
+time stamp filelist = /usr/home/mouse/heathen/.bibles/.ftptimestamps
+temporary directory = /usr/home/mouse/heathen/.bibles/.temp
+
